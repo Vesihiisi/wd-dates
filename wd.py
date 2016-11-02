@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import mwclient
 import mwparserfromhell
 import re
 import pywikibot as pb
@@ -119,16 +118,16 @@ def addDate(what, date, item, language):
     else:
         timestamp = pb.WbTime(year=date[2], month=date[1], day=date[0])
     claim.setTarget(timestamp)
-    print("Setting date on " + title + " (" + what + ")")
     item.addClaim(claim)
+    print("Set date on " + title + " (" + what + ")")
     addReference(language, claim)
 
 def addReference(language, claim):
     retrieved = pb.Claim(repo, u'P143')
     wikipedia = pb.ItemPage(repo, wikis[language])
     retrieved.setTarget(wikipedia)
-    print("Adding reference (" + language + ")")
     claim.addSources([retrieved])
+    print("Added reference (" + language + ")")
 
 def sleepytime():
     sleepTime = (randint(13,65))
