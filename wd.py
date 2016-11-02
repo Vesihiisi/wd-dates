@@ -2,7 +2,7 @@
 import mwclient
 import mwparserfromhell
 import re
-import new/pywikibot as pb
+import pywikibot as pb
 import time
 from random import randint
 import argparse
@@ -37,47 +37,76 @@ def itemIsHuman(wdItem):
 
 def findBornSection(language, text):
     if language == "sv":
-        pattern = re.compile("född [0-9]{1,2} [a-z]+ [0-9]{4}")
+        patternShort = re.compile("född [0-9]{4}")
+        patternLong = re.compile("född [0-9]{1,2} [a-z]+ [0-9]{4}")
     elif language == "no" or language == "da":
-        pattern = re.compile("født [0-9]{1,2}\. [a-z]+ [0-9]{4}")
+        patternShort = re.compile("født [0-9]{4}")
+        patternLong = re.compile("født [0-9]{1,2}\. [a-z]+ [0-9]{4}")
     elif language == "pl":
-        pattern = re.compile("ur\. [0-9]{1,2} \D+ [0-9]{4}")
-    result = pattern.findall(text)
-    if len(result) == 0:
-        return None
+        patternShort = re.compile("ur\. [0-9]{4}")
+        patternLong = re.compile("ur\. [0-9]{1,2} \D+ [0-9]{4}")
+    resultLong = patternLong.findall(text)
+    if len(resultLong) == 0:
+        resultShort = patternShort.findall(text)
+        if len(resultShort) == 0:
+            return None
+        else:
+            return resultShort[0]
     else:
-        return result[0]
+        return resultLong[0]
 
 def findDeadSection(language, text):
     if language == "sv":
-        pattern = re.compile("död [0-9]{1,2} [a-z]+ [0-9]{4}")
+        patternShort = re.compile("död [0-9]{4}")
+        patternLong = re.compile("död [0-9]{1,2} [a-z]+ [0-9]{4}")
     elif language == "no" or language == "da":
+        patternShort = re.compile("død [0-9]{4}")
         pattern = re.compile("død [0-9]{1,2}\. [a-z]+ [0-9]{4}")
     elif language == "pl":
-        pattern = re.compile("zm\. [0-9]{1,2} \D+ [0-9]{4}")
-    result = pattern.findall(text)
-    if len(result) == 0:
-        return None
+        patternShort = re.compile("zm\. [0-9]{4}")
+        patternLong = re.compile("zm\. [0-9]{1,2} \D+ [0-9]{4}")
+    resultLong = patternLong.findall(text)
+    if len(resultLong) == 0:
+        resultShort = patternShort.findall(text)
+        if len(resultShort) == 0:
+            return None
+        else:
+            return resultShort[0]
     else:
-        return result[0]
+            return resultLong[0]
 
 def get_date_string(language, text):
     if language == "sv":
-        pattern = re.compile("[0-9]{1,2} [a-z]+ [0-9]{4}")
+        patternShort = re.compile("[0-9]{4}")
+        patternLong = re.compile("[0-9]{1,2} [a-z]+ [0-9]{4}")
     elif language == "no" or language == "da":
-        pattern = re.compile("[0-9]{1,2}\. [a-z]+ [0-9]{4}")
+        patternShort = re.compile("[0-9]{4}")
+        patternLong = re.compile("[0-9]{1,2}\. [a-z]+ [0-9]{4}")
     elif language == "pl":
-        pattern = re.compile("[0-9]{1,2} \D+ [0-9]{4}")
-    return pattern.findall(text)[0]
+        patternShort = re.compile("[0-9]{4}")
+        patternLong = re.compile("[0-9]{1,2} \D+ [0-9]{4}")
+    resultLong = patternLong.findall(text)
+    if len(resultLong) == 0:
+        resultShort = patternShort.findall(text)
+        if len(resultShort) == 0:
+            return None
+        else:
+            return resultShort[0]
+    else:
+            return resultLong[0]
 
 def objectify_date(language, string):
     string = string.replace(".", "")
-    parts = string.split(" ")
-    day = int(parts[0])
-    year = int(parts[2])
-    month_list = months[language]
-    monthNumber = month_list.index(parts[1]) + 1
-    return [day, monthNumber, year]
+    if len(string) == 4:
+        year = int(string)
+        return [year]
+    else :
+        parts = string.split(" ")
+        day = int(parts[0])
+        year = int(parts[2])
+        month_list = months[language]
+        monthNumber = month_list.index(parts[1]) + 1
+        return [day, monthNumber, year]
 
 def addDate(what, date, item, language):
     if what == "b":
@@ -85,7 +114,10 @@ def addDate(what, date, item, language):
     elif what == "d":
         prop = props["dead"]
     claim = pb.Claim(repo, prop)
-    timestamp = pb.WbTime(year=date[2], month=date[1], day=date[0])
+    if len(date) == 1:
+        timestamp = pb.WbTime(year=date[0])
+    else:
+        timestamp = pb.WbTime(year=date[2], month=date[1], day=date[0])
     claim.setTarget(timestamp)
     print("Setting date on " + title + " (" + what + ")")
     item.addClaim(claim)
