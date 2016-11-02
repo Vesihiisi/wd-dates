@@ -144,7 +144,7 @@ if __name__ == '__main__':
     language = parser.parse_args().language
     pagepile = parser.parse_args().list
 
-    site = mwclient.Site((('https', language + '.wikipedia.org')))
+    siteWp = pb.Site(language, "wikipedia")
 
     with open(pagepile, "r") as f:
         titles = []
@@ -154,8 +154,8 @@ if __name__ == '__main__':
 
     for title in titles:
         try:
-            page = site.pages[title]
-            wikitext = page.text()
+            page = pb.Page(siteWp, title)
+            wikitext = page.text
             parsed = mwparserfromhell.parse(wikitext).strip_code()
             try:
                 bornSection = findBornSection(language, parsed)
@@ -169,9 +169,8 @@ if __name__ == '__main__':
             except Exception as e:
                 date_death = None
                 pass
-            sitePb = pb.Site(language, "wikipedia")
-            repo = sitePb.data_repository()
-            page = pb.Page(sitePb, title)
+            repo = siteWp.data_repository()
+            page = pb.Page(siteWp, title)
             item = pb.ItemPage.fromPage(page)
             if itemIsHuman(item):
                 if not props["born"] in item.claims and date_birth is not None:
