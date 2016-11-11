@@ -6,6 +6,8 @@ import time
 from random import randint
 import argparse
 
+MIN_YEAR = 1800
+
 months = {
     "sv" : ["januari", "februari", "mars", "april", "maj", "juni", "juli", "augusti", "september", "oktober", "november", "december"],
     "no" : ["januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"],
@@ -114,8 +116,12 @@ def addDate(what, date, item, language):
         prop = props["dead"]
     claim = pb.Claim(repo, prop)
     if len(date) == 1:
+        if date[0] < MIN_YEAR:
+            return
         timestamp = pb.WbTime(year=date[0])
     else:
+        if date[2] < MIN_YEAR:
+            return
         timestamp = pb.WbTime(year=date[2], month=date[1], day=date[0])
     claim.setTarget(timestamp)
     item.addClaim(claim)
