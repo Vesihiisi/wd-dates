@@ -1,6 +1,7 @@
 # WD-Dates
 
-This is a Pywikibot-powered script to import people's birth and death dates from Wikipedia articles to Wikidata. It currently has support for the Danish, Swedish, Norwegian (bokmål) and Polish Wikipedias.
+This is a Pywikibot-powered script to import people's birth and death dates from Wikipedia articles to Wikidata. It currently has support for the Danish, Swedish, Norwegian (bokmål) and Polish Wikipedias. Used by [VesihiisiBot](https://www.wikidata.org/wiki/User:VesihiisiBot).
+
 
 ## Usage
 
