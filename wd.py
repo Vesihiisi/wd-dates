@@ -141,6 +141,7 @@ def sleepytime():
     time.sleep(sleepTime)
 
 if __name__ == '__main__':
+    i = 0
     parser = argparse.ArgumentParser()
     parser.add_argument("language")
     parser.add_argument("list")
@@ -156,12 +157,16 @@ if __name__ == '__main__':
         for line in f:
             line = line.rstrip('\n')
             titles.append(line)
+        noItems = len(titles)
 
     for title in titles:
         try:
+            print("--------------")
+            i = i + 1
             page = pb.Page(siteWp, title)
             wikitext = page.text
             parsed = mwparserfromhell.parse(wikitext).strip_code()
+            print("Processing line " + str(i) + "/" + str(noItems) + " (" + str(round(100*float(i)/float(noItems), 3)) + " %)")
             try:
                 bornSection = findBornSection(language, parsed)
                 date_birth = objectify_date(language, get_date_string(language, bornSection))
@@ -180,13 +185,11 @@ if __name__ == '__main__':
             if itemIsHuman(item):
                 if not props["born"] in item.claims and date_birth is not None:
                     addDate("b", date_birth, item, language)
-                    sleepytime()
                     print()
                 else:
                     print(title, "already has born.")
                 if not props["dead"] in item.claims and date_death is not None:
                     addDate("d", date_death, item, language)
-                    sleepytime()
                     print()
                 else:
                     print(title, "already has death")
